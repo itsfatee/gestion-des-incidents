@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+    <fullyQualifiedTypeName name="javax.swing.JComboBox"/>
+    <fullyQualifiedTypeName name="com.sgi.ui.UIDetailIncident"/>
+    <fullyQualifiedTypeName name="java.lang.StrictMath"/>
+    <fullyQualifiedTypeName name="com.sgi.utils.Utilitaire"/>
+    <fullyQualifiedTypeName name="com.sgi.entities.Incident"/>
+    <fullyQualifiedTypeName name="com.sgi.entities.Statut"/>
+    <fullyQualifiedTypeName name="com.sgi.ui.UIVisualiserIncident"/>
+    <fullyQualifiedTypeName name="java.lang.String"/>
+    <fullyQualifiedTypeName name="java.lang.System"/>
+    <fullyQualifiedTypeName name="com.sgi.dao.UserDaoImpl"/>
+    <fullyQualifiedTypeName name="com.sgi.entities.User"/>
+    <fullyQualifiedTypeName name="com.sgi.ui.UIAuthentification"/>
+</qualifiedTypeNameHistroy>

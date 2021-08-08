@@ -1,0 +1,95 @@
+package com.sgi.controllers;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
+
+import com.sgi.entities.Incident;
+import com.sgi.entities.User;
+import com.sgi.service.Service;
+import com.sgi.ui.UIAuthentification;
+import com.sgi.ui.UIDetailIncident;
+import com.sgi.ui.UIVisualiserIncident;
+
+public class VisualiserIncidentController {
+	private UIVisualiserIncident uiVisualiserIncident;
+	private UIAuthentification uiAuthentification;
+	
+	public VisualiserIncidentController(UIVisualiserIncident uiVisualiserIncident, UIAuthentification uiAuthentification) {
+		this.uiVisualiserIncident = uiVisualiserIncident;
+		this.uiAuthentification= uiAuthentification;
+		
+		List<Incident> incidents;
+		User user = uiAuthentification.getUserConnectId();
+		try {
+			incidents = Service.listerIncidents ();
+			uiVisualiserIncident.loadIncident(incidents);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		addListeners();
+	}
+	
+}
+	
+	
+	private void addListeners () {
+		uiVisualiserIncident.AddOuvrirListener (new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				
+				int idIncident = uiVisualiserIncident.getSelectedIncidentId ();
+				
+				
+				
+				if (idIncident != -1) {
+					
+					UIDetailIncident uiDetailIncident = null;
+					try {
+						User user = uiAuthentification.getUserConnectId();
+						if(user.getType().compareTo("RESPONSABLE")== 0) {
+							
+						Incident incident = Service.getIncident(idIncident);
+						uiDetailIncident = new UIDetailIncident(idIncident);
+						uiDetailIncident.hideButton();
+						DetailIncidentController detailIncidentController = 
+								new DetailIncidentController (uiDetailIncident,uiVisualiserIncident,uiAuthentification);
+						uiDetailIncident.getField(incident);
+						
+						detailIncidentController.run ();
+						
+						//uiDetailIncident = new UIDetailIncident(idIncident);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					DetailIncidentController detailIncidentController = null;
+					try {
+						detailIncidentController = new DetailIncidentController (uiDetailIncident,uiVisualiserIncident,uiAuthentification);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+					
+					detailIncidentController.run ();
+				} 
+			}
+		});
+		
+		uiVisualiserIncident.AddFermerListener (new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				uiVisualiserIncident.dispose();
+			}
+		});				
+	}
+
+	public void run() {
+		uiVisualiserIncident.setVisible(true);
+	}
+}

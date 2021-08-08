@@ -1,0 +1,147 @@
+package com.sgi.controllers;
+
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
+
+import com.sgi.entities.Incident;
+import com.sgi.entities.Note;
+import com.sgi.entities.Statut;
+import com.sgi.entities.User;
+import com.sgi.service.Service;
+import com.sgi.ui.UIDetailIncident;
+import com.sgi.ui.UIVisualiserIncident;
+import com.sgi.utils.Utilitaire;
+
+public class DetailIncidentController {
+	
+	private UIDetailIncident uiDetailIncident;
+	private UIVisualiserIncident uiVisualiserIncident;
+
+	/**
+	 * @throws Exception 
+	 * @wbp.parser.entryPoint
+	 */
+	public DetailIncidentController(UIDetailIncident uiDetailIncident,UIVisualiserIncident uiVisualiserIncident) throws Exception {
+		this.uiDetailIncident = uiDetailIncident;
+		this.uiVisualiserIncident = uiVisualiserIncident;
+		uiDetailIncident.fillComboBox();
+		
+		int idIncident = uiDetailIncident.getIdIncident();
+		List<Note> notes;
+		try {
+			notes = Service.listerNotes (idIncident);
+			uiDetailIncident.afficherLesNotes (notes);
+			
+		} catch (Exception e) {
+			Utilitaire.displayErrorMessage("Erreur au chargement des notes : " + e.getMessage());
+		}				
+		
+		addListeners ();
+	}
+	
+	/**
+	 * @wbp.parser.entryPoint
+	 */
+	private void addListeners () {
+		
+		uiDetailIncident.addAjouterNouvelleNoteListener (new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String message = uiDetailIncident.getNouvelleNote();								
+				
+				if (message.equals("")) return;
+				
+				try {
+					
+					Note note = new Note (uiDetailIncident.getIdIncident(), 
+								User.getConnectedUserId(),
+								message, 
+								Utilitaire.getCurrentTime());
+					
+					Service.creerNote (note);
+					uiDetailIncident.effacerLeChampNouvelleNote();
+					Utilitaire.displayNotification("Note ajoutée avec succès !");
+					
+				} catch (Exception e1) {
+					Utilitaire.displayErrorMessage("Error " + e1.getMessage());
+				}
+				
+			}
+		});
+		
+		uiDetailIncident.addAssignerListener (new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				String developpeur = uiDetailIncident.getDeveloppeurs();
+				int idIncident = uiDetailIncident.getIdIncident();
+				
+				try {
+					User user = Service.getUserByNom(developpeur);
+					System.out.println("---USER---");
+					System.out.println(user);
+					System.out.println("----AFTER USER-----");
+					System.out.println("----AFTER USER-----");
+					System.out.println(user.getNom());
+					System.out.println("----AFTER USER-----");
+					int idDeveloppeur = uiDetailIncident.fillComboBox();
+					Incident incident = Service.getIncident(idIncident);
+					uiDetailIncident.getField(incident);
+					
+					int confirmation = Utilitaire.showConfirmationMessage(
+							"Assignation de l'incident\n"+
+							 "\t ------------------------ \n"+
+							 "\t ID : "+incident.getId()+"\n"+
+							 "\t Application : "+incident.getApplication()+"\n"+
+							 "\t Descrpition : "+incident.getDescription()+"\n"+
+							 "\t Gravité : "+incident.getGravite()+"\n"+
+							 "\t------------------------- \n"+
+							 "Assigner à : "+user.getNom());
+					if (confirmation == 0 )
+					{
+						
+						incident.setStatut(Statut.ASSIGNED);						
+						Service.updateIncident(incident,idDeveloppeur);
+						Utilitaire.displayNotification("Incident assigné à < "+user.getNom()+" "+user.getPrenom()+" > avec succès !");
+						uiDetailIncident.assignerFalse();
+						//uiDetailIncident.assignerA(user.getLogin());
+						uiDetailIncident.getField(incident);
+						
+						List<Incident> incidents;
+						incidents = Service.listerIncidents();
+						uiVisualiserIncident.loadIncident(incidents);
+					}
+					else if (confirmation == 1)
+					{
+						;
+					}
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+				
+			}
+		});
+		
+		uiDetailIncident.addCloturerListener (new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+	}
+
+	/**
+	 * @wbp.parser.entryPoint
+	 */
+	public void run() {
+		uiDetailIncident.setVisible(true);
+	}
+}
